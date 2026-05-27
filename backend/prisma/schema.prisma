@@ -1,14 +1,53 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum KycStatus {
+  LITE
+  FULL
+  PENDING
+  REJECTED
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+model Seller {
+  id                   String          @id @default(uuid())
+  tradingName          String
+  legalName            String
+  mobileNumber         String          @unique
+  idLastFour           String
+  passwordHash         String
+  kycStatus            KycStatus       @default(LITE)
+  accountStatus        AccountStatus   @default(ACTIVE)
+  referralCode         String          @unique
+  transactionFeePct    Decimal         @default(0.0250)
+
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  wallet               Wallet?
+}
+
+model Wallet {
+  id               String    @id @default(uuid())
+
+  sellerId         String    @unique
+  seller           Seller    @relation(fields: [sellerId], references: [id])
+
+  balance          Decimal   @default(0.00)
+  totalEarned      Decimal   @default(0.00)
+  totalFeesPaid    Decimal   @default(0.00)
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
