@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../home/screens/home_screen.dart';
 import '../providers/auth_provider.dart';
 import 'login_screen.dart';
+import '../../home/screens/home_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -17,12 +17,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
 
-    checkAuthentication();
+    _checkAuth();
   }
 
-  Future<void> checkAuthentication() async {
-    await ref.read(authProvider.notifier).checkLoginStatus();
+  Future<void> _checkAuth() async {
+    // Check saved token/session
+    await ref.read(authProvider.notifier).checkAuthStatus();
 
+    // Get current auth state
     final authState = ref.read(authProvider);
 
     if (!mounted) return;

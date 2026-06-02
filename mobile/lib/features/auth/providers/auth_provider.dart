@@ -2,18 +2,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/services/storage_service.dart';
 
-final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier();
-});
-
+/// ===============================
+/// AUTH STATE MODEL
+/// ===============================
 class AuthState {
   final bool isAuthenticated;
   final String? token;
 
-  const AuthState({required this.isAuthenticated, this.token});
+  AuthState({required this.isAuthenticated, this.token});
 
   factory AuthState.unauthenticated() {
-    return const AuthState(isAuthenticated: false, token: null);
+    return AuthState(isAuthenticated: false);
   }
 
   factory AuthState.authenticated(String token) {
@@ -21,13 +20,25 @@ class AuthState {
   }
 }
 
+/// ===============================
+/// AUTH PROVIDER
+/// ===============================
+final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
+  (ref) => AuthNotifier(),
+);
+
+/// ===============================
+/// AUTH NOTIFIER
+/// ===============================
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier() : super(AuthState.unauthenticated());
 
-  Future<void> checkLoginStatus() async {
+  Future<void> checkAuthStatus() async {
     final token = await StorageService.getToken();
 
-    if (token != null && token.isNotEmpty) {
+    final valid = await StorageService.isSessionValid();
+
+    if (token != null && valid) {
       state = AuthState.authenticated(token);
     } else {
       state = AuthState.unauthenticated();
