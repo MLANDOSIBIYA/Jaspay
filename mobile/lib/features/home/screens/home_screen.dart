@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/seller_service.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/screens/login_screen.dart';
+import '../../transactions/screens/transaction_history_screen.dart';
+import '../../transactions/services/transaction_service.dart';
+import '../../payments/screens/create_payment_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -16,7 +19,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final SellerService _sellerService = SellerService();
 
   bool isLoading = true;
-
   Map<String, dynamic>? seller;
 
   @override
@@ -32,7 +34,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       debugPrint("RAW RESPONSE: $data");
 
       final sellerData = data["seller"];
-
       debugPrint("SELLER DATA: $sellerData");
 
       if (!mounted) return;
@@ -62,6 +63,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       MaterialPageRoute(builder: (_) => const LoginScreen()),
       (route) => false,
     );
+  }
+
+  Future<void> testCreditWallet() async {
+    try {
+      await TransactionService().testCredit();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Wallet credited")));
+
+      await loadProfile();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   @override
@@ -98,9 +115,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text("Wallet Balance"),
-
                     const SizedBox(height: 10),
-
                     Text(
                       "R ${seller?["wallet"]?["balance"] ?? "0.00"}",
                       style: const TextStyle(
@@ -110,6 +125,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TransactionHistoryScreen(),
+                    ),
+                  );
+                },
+                child: const Text("View Transactions"),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: testCreditWallet,
+                child: const Text("Test Credit +R100"),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CreatePaymentScreen(),
+                    ),
+                  );
+                },
+                child: const Text("Create Payment QR"),
               ),
             ),
           ],

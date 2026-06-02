@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const authRoutes = require("./routes/auth.routes");
 const sellerRoutes = require("./routes/seller.routes");
 const transactionRoutes = require("./routes/transaction.routes");
+const paymentRoutes = require("./routes/payment.routes");
 
 const app = express();
 
@@ -22,5 +23,6 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/seller", sellerRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/payments", paymentRoutes);
 
 module.exports = app;

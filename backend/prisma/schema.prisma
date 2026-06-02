@@ -48,6 +48,7 @@ model Seller {
 
   wallet               Wallet?
   transactions         Transaction[]
+  paymentRequests      PaymentRequest[]
 }
 
 model Wallet {
@@ -80,4 +81,21 @@ model Transaction {
   description       String?
 
   createdAt         DateTime            @default(now())
+}
+
+model PaymentRequest {
+  id            String   @id @default(uuid())
+
+  sellerId      String
+  seller        Seller   @relation(fields: [sellerId], references: [id])
+
+  amount        Decimal
+
+  description   String?
+
+  qrCode        String   @unique
+
+  status        String   @default("PENDING")
+
+  createdAt     DateTime @default(now())
 }
